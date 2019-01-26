@@ -44,6 +44,10 @@ function queryTensorflowServing (url, error = new errors.Unavailable({
       try {
         context.result = await context.service._get(hash) // use hook-less get
         debug('Found in cache: ', context.result)
+        // prefer user supplied header
+        if (context.data.header) {
+          context.result.header = context.data.header
+        }
         return context
       } catch (error) {
         // NotFound: No record found for id 'c5179bf95c52872dd0be1207dd9898dc'
