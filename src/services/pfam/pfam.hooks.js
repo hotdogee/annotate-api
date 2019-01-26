@@ -13,6 +13,10 @@ const meta = JSON.parse(fs.readFileSync(metaPath, 'utf8'))
 const ajv = new Ajv({ allErrors: true, $data: true })
 const createPfamSchema = {
   properties: {
+    header: {
+      type: 'string',
+      pattern: '^>'
+    },
     seq: {
       type: 'string',
       pattern: '^[FLIMVPAWGSTYQNCO*UHKRDEBZX-]+$'
