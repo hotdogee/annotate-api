@@ -1,5 +1,6 @@
 const fs = require('fs')
 const crypto = require('crypto')
+const config = require('config')
 const debug = require('debug')('pfam.hooks')
 const errors = require('@feathersjs/errors')
 const axios = require('axios')
@@ -54,6 +55,7 @@ function queryTensorflowServing (url, error = new errors.Unavailable({
         debug(error)
       }
 
+      debug(`Querying TFServing: ${url}`)
       const data = {
         instances: [context.data.seq]
       }
@@ -98,7 +100,7 @@ module.exports = {
     get: [],
     create: [
       validateSchema(createPfamSchema, ajv),
-      queryTensorflowServing('https://ann.hanl.in/v1/models/pfam:predict')
+      queryTensorflowServing(config.get('servingUrl'))
     ],
     update: [],
     patch: [],

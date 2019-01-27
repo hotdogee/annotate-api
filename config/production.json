@@ -1,4 +1,5 @@
 {
-  "host": "annotate-api-app.feathersjs.com",
-  "port": "PORT"
+  "host": "ann.hanl.in",
+  "port": "8581",
+  "servingUrl": "http://192.168.1.63/v1/models/pfam:predict"
 }
