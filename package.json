@@ -25,7 +25,8 @@
   "scripts": {
     "test": "npm run eslint && NODE_ENV= npm run mocha",
     "eslint": "eslint src/. test/. --config .eslintrc.json",
-    "dev": "cross-env DEBUG=pfam* nodemon src/",
+    "dev": "nodemon src/",
+    "debug": "cross-env DEBUG=pfam* nodemon src/",
     "start": "cross-env NODE_ENV=production node src/",
     "mocha": "mocha test/ --recursive --exit"
   },

@@ -1,5 +1,5 @@
 {
   "host": "ann.hanl.in",
   "port": "8581",
-  "servingUrl": "http://192.168.1.63:8501/v1/models/pfam:predict"
+  "servingUrl": "http://192.168.1.63:8601/v1/models"
 }

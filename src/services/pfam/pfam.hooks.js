@@ -66,6 +66,12 @@ const createPfamSchema = {
     seq: {
       type: 'string',
       pattern: '^[FLIMVPAWGSTYQNCO*UHKRDEBZX-]+$'
+    },
+    model: {
+      type: 'string'
+    },
+    version: {
+      type: 'string'
     }
   },
   require: ['seq']
@@ -79,20 +85,22 @@ function queryTensorflowServing (url, error = new errors.Unavailable({
 })) {
   return async context => {
     try {
-      debug('queryTensorflowServing: ', context.data)
+      const { data, service } = context
+      debug('queryTensorflowServing: ', data)
       // hash the seq, length: md5=32, sha1=40, sha256=64, sha512=128
       // let seq = 'MALWMRLLPLLALLALWGPDPAAAFVNQHLCGSHLVEALYLVCGERGFFYTPKTRREAEDLQGSLQPLALEGSLQKRGIVEQCCTSICSLYQLENYCN'
       // let sum = crypto.createHash('sha1').update(seq).digest('hex')
-      const hash = crypto.createHash('md5').update(context.data.seq).digest('hex')
+      const { header, seq, model = 'pfam31', version = '' } = data
+      const hash = crypto.createHash('md5').update(seq + model + version).digest('hex')
 
       // check database
       // ERROR: No record found for id 'c5179bf95c52872dd0be1207dd9898dc'
       try {
-        context.result = await context.service._get(hash) // use hook-less get
+        context.result = await service._get(hash) // use hook-less get
         debug('Found in cache: ', context.result)
         // prefer user supplied header
-        if (context.data.header) {
-          context.result.header = context.data.header
+        if (header) {
+          context.result.header = header
         }
         return context
       } catch (error) {
@@ -101,10 +109,10 @@ function queryTensorflowServing (url, error = new errors.Unavailable({
       }
 
       debug(`Querying TFServing: ${url}`)
-      const data = {
+      const d = {
         instances: [context.data.seq]
       }
-      const response = await axios.post(url, data)
+      const response = await axios.post(`${url}/${model}:predict`, d)
       context.data.predictions = response.data.predictions
       context.data._id = hash
       // let a = 1
@@ -132,7 +140,9 @@ function addDomainMap () {
         domainMap[v] = {
           pfamAcc,
           pfamId: pfamAClans[pfamAcc].pfamId,
-          pfamDesc: pfamAClans[pfamAcc].pfamDesc
+          pfamDesc: pfamAClans[pfamAcc].pfamDesc,
+          clanAcc: pfamAClans[pfamAcc].clanAcc,
+          clanId: pfamAClans[pfamAcc].clanId
         }
       })
       context.result.domainMap = domainMap

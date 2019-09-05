@@ -7,5 +7,5 @@
     "max": 50
   },
   "mongodb": "mongodb://localhost:27017/annotate_api",
-  "servingUrl": "https://ann.hanl.in/v1/models/pfam:predict"
+  "servingUrl": "https://ann.hanl.in/v101/models"
 }
