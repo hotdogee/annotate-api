@@ -5,7 +5,7 @@ const hooks = require('./pfam.hooks')
 module.exports = function (app) {
   const paginate = app.get('paginate')
   const mongoClient = app.get('mongoClient')
-  const options = { paginate, multi: [ 'remove' ] }
+  const options = { paginate, multi: ['remove'] }
 
   // Initialize our service with any options it requires
   app.use('/pfam', createService(options))
@@ -13,7 +13,7 @@ module.exports = function (app) {
   // Get our initialized service so that we can register hooks and filters
   const service = app.service('pfam')
 
-  mongoClient.then(db => {
+  mongoClient.then((db) => {
     service.Model = db.collection('pfam')
   })
 
