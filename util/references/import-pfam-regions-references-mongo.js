@@ -1,4 +1,5 @@
 // node util/references/import-pfam-regions-references-mongo.js
+// node util/references/import-pfam-regions-references-mongo.js --refName pfam31 --regionsTsv /home/hotdogee/datasets3/Pfam31.0/Pfam-A.regions.uniprot.tsv
 /* eslint-disable no-unused-vars */
 const fs = require('fs')
 const path = require('path')
@@ -11,9 +12,11 @@ const logger = require('../../src/logger')
 const argv = require('minimist')(process.argv.slice(2), {
   default: {
     mongodb: process.env.MONGODB,
-    refName: 'pfam32',
+    refName: 'pfam31',
+    // refName: 'pfam32',
     // regionsTsv: 'D:/pfam/Pfam32.0/Pfam-A.regions.uniprot.tsv',
-    regionsTsv: '/home/hotdogee/datasets3/Pfam32.0/Pfam-A.regions.uniprot.tsv',
+    // regionsTsv: '/home/hotdogee/datasets3/Pfam32.0/Pfam-A.regions.uniprot.tsv',
+    regionsTsv: '/home/hotdogee/datasets3/Pfam31.0/Pfam-A.regions.uniprot.tsv',
     service: 'references'
   }
 })
