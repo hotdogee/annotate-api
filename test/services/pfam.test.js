@@ -1,7 +1,7 @@
 const assert = require('assert')
 const app = require('../../src/app')
 
-describe('\'pfam\' service', () => {
+describe("'pfam' service", () => {
   it('registered the service', () => {
     const service = app.service('pfam')
 
