@@ -59,7 +59,8 @@ function queryTensorflowServing (
       // hash the seq, length: md5=32, sha1=40, sha256=64, sha512=128
       // let seq = 'MALWMRLLPLLALLALWGPDPAAAFVNQHLCGSHLVEALYLVCGERGFFYTPKTRREAEDLQGSLQPLALEGSLQKRGIVEQCCTSICSLYQLENYCN'
       // let sum = crypto.createHash('sha1').update(seq).digest('hex')
-      const { header, seq, model = 'pfam31', version = '1567765316' } = data
+      // const { header, seq, model = 'pfam31', version = '1567765316' } = data
+      const { header, seq, model = 'pfam', version = '1568346315' } = data
       const hash = crypto
         .createHash('md5')
         .update(seq + model + version)
