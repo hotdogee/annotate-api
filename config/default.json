@@ -7,5 +7,5 @@
     "max": 50
   },
   "mongodb": "mongodb://localhost:27017/annotate_api",
-  "servingUrl": "https://ann.hanl.in/v101/models"
+  "servingUrl": "http://localhost:8601/v1/models"
 }
