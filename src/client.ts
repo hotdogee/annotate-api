@@ -4,6 +4,14 @@ import type { TransportConnection, Application } from '@feathersjs/feathers'
 import authenticationClient from '@feathersjs/authentication-client'
 import type { AuthenticationClientOptions } from '@feathersjs/authentication-client'
 
+import { referencesClient } from './services/references/references.shared'
+export type {
+  References,
+  ReferencesData,
+  ReferencesQuery,
+  ReferencesPatch
+} from './services/references/references.shared'
+
 import { pfamClient } from './services/pfam/pfam.shared'
 export type { Pfam, PfamData, PfamQuery, PfamPatch } from './services/pfam/pfam.shared'
 
@@ -34,5 +42,6 @@ export const createClient = <Configuration = any,>(
   client.set('connection', connection)
 
   client.configure(pfamClient)
+  client.configure(referencesClient)
   return client
 }

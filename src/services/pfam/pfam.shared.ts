@@ -9,13 +9,13 @@ export type PfamClientService = Pick<PfamService<Params<PfamQuery>>, (typeof pfa
 
 export const pfamPath = 'pfam'
 
-export const pfamMethods: Array<keyof PfamService> = ['find', 'get', 'create', 'patch', 'remove']
+export const pfamMethods: Array<keyof PfamService> = ['find', 'get', 'create']
 
 export const pfamClient = (client: ClientApplication) => {
   const connection = client.get('connection')
 
   client.use(pfamPath, connection.service(pfamPath), {
-    methods: pfamMethods
+    methods: pfamMethods,
   })
 }
 

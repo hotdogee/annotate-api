@@ -16,7 +16,7 @@ const config = require('config')
         // - seqAcc and refName
         key: { seqAcc: 1, refName: 1 },
         unique: false,
-        background: true,
+        background: false,
       },
     ])
     logger.info(`Indexes created: ${JSON.stringify(result, null, 2)}`)
