@@ -51,10 +51,17 @@ npm install
 
 3. Configure the database connection in `config/default.json`.
 
-4. Start the API server:
+4. Start the dev server:
 
 ```bash
 npm run dev
+```
+
+4.1 Start the production server:
+
+```bash
+npm run compile
+npm run start
 ```
 
 ## Reference Data Setup
