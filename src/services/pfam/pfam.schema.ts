@@ -124,7 +124,7 @@ export const pfamDataResolver = resolve<Pfam, HookContext<PfamService>>({
       // Extract and return the predictions from the response
       return response.data.predictions[0]
     } catch (error) {
-      console.error('Error calling TensorFlow Serving API:', error)
+      console.error('Tensorflow Serving Server Unavailable:', error)
       throw error
     }
   },
