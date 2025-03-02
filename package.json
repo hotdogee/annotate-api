@@ -1,13 +1,16 @@
 {
-  "name": "annotate-api-f5",
+  "name": "annotate-api",
   "description": "test",
-  "version": "0.0.0",
+  "version": "2.0.0",
   "homepage": "",
   "private": true,
   "keywords": [
     "feathers"
   ],
-  "author": {},
+  "author": {
+    "name": "Han Lin",
+    "email": "hotdogee@gmail.com"
+  },
   "contributors": [],
   "bugs": {},
   "engines": {
