@@ -1,5 +1,5 @@
-require('dotenv').config()
+const config = require('config')
 const feathers = require('@feathersjs/client')
 const io = require('socket.io-client')
-const socket = io(process.env.SERVER_URL)
+const socket = io(`http://${config.get('host')}:${config.get('port')}`)
 module.exports = feathers().configure(feathers.socketio(socket))

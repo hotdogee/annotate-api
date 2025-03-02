@@ -1,5 +1,0 @@
-{
-  "host": "ann.hanl.in",
-  "port": "8581",
-  "servingUrl": "http://localhost:8601/v1/models"
-}
