@@ -42,7 +42,8 @@
     "mocha": "cross-env NODE_ENV=test mocha test/ --require ts-node/register --recursive --extension .ts --exit",
     "test": "npm run mocha",
     "bundle:client": "npm run compile && npm pack --pack-destination ./public",
-    "db:load-references": "node util/references/load-references.ts"
+    "db:load-references": "node --max-old-space-size=32768 --import=tsx util/references/load-references.ts",
+    "db:index-references": "node --max-old-space-size=32768 --import=tsx util/references/index-references.ts"
   },
   "dependencies": {
     "@feathersjs/adapter-commons": "^5.0.33",

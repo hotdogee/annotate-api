@@ -9,25 +9,27 @@ const argv = require('minimist')(process.argv.slice(2), {
     mongodb: process.env.MONGODB,
     service: 'references',
     unique: false,
-    background: true
-  }
+    background: true,
+  },
 })
 
 /* eslint-enables no-unused-vars */
 ;(async () => {
   try {
     const client = await MongoClient.connect(argv.mongodb, {
-      useNewUrlParser: true
+      useNewUrlParser: true,
     })
     const db = client.db()
     const collection = await db.collection(argv.service, {})
     const result = await collection.createIndexes([
       {
-        // src\services\emails\emails.hooks.js sendEmail
+        // support queries on these field combinations:
+        // - seqAcc
+        // - seqAcc and refName
         key: { seqAcc: 1, refName: 1 },
         unique: argv.unique,
-        background: argv.background
-      }
+        background: argv.background,
+      },
     ])
     logger.info(`${argv.service}.createIndex`, { result })
     // const result = {

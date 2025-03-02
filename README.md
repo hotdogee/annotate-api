@@ -57,6 +57,49 @@ npm install
 npm run dev
 ```
 
+## Reference Data Setup
+
+1. Create the reference directory structure (if not already present):
+
+```bash
+mkdir -p reference-regions/Pfam31.0
+mkdir -p reference-regions/Pfam32.0
+```
+
+2. Download the Pfam reference files:
+
+   For Pfam31.0:
+
+   ```bash
+   # Download from the European Bioinformatics Institute (EBI)
+   wget ftp://ftp.ebi.ac.uk/pub/databases/Pfam/releases/Pfam31.0/Pfam-A.regions.uniprot.tsv.gz -P reference-regions/Pfam31.0/
+
+   # Decompress the file
+   gunzip reference-regions/Pfam31.0/Pfam-A.regions.uniprot.tsv.gz
+   ```
+
+   For Pfam32.0:
+
+   ```bash
+   # Download from the European Bioinformatics Institute (EBI)
+   wget ftp://ftp.ebi.ac.uk/pub/databases/Pfam/releases/Pfam32.0/Pfam-A.regions.uniprot.tsv.gz -P reference-regions/Pfam32.0/
+
+   # Decompress the file
+   gunzip reference-regions/Pfam32.0/Pfam-A.regions.uniprot.tsv.gz
+   ```
+
+   Note: These files are large (6-10GB) and may take some time to download and decompress.
+
+3. Load the reference data into the MongoDB database:
+
+```bash
+# Make sure MongoDB is running
+npm run db:load-references
+npm run db:index-references
+```
+
+This process will parse the Pfam reference files and populate the database with domain information, which will be displayed alongside prediction results in the frontend user interface.
+
 ## TensorFlow Serving Setup
 
 Before using the API, you need to have TensorFlow Serving running with the Pfam model. Use one of the following commands based on your environment:

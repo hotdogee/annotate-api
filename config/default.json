@@ -12,11 +12,11 @@
   "references": [
     {
       "refName": "pfam31",
-      "regionsTsv": "../reference-regions/Pfam31.0/Pfam-A.regions.uniprot.tsv"
+      "regionsTsv": "./reference-regions/Pfam31.0/Pfam-A.regions.uniprot.tsv"
     },
     {
       "refName": "pfam32",
-      "regionsTsv": "../reference-regions/Pfam32.0/Pfam-A.regions.uniprot.tsv"
+      "regionsTsv": "./reference-regions/Pfam32.0/Pfam-A.regions.uniprot.tsv"
     }
   ]
 }

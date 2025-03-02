@@ -119,3 +119,11 @@ dist
 .sqlite
 
 lib/
+
+# reference-regions - ignore all files except specific .gitkeep files
+reference-regions/**/*
+!reference-regions/
+!reference-regions/Pfam31.0/
+!reference-regions/Pfam31.0/.gitkeep
+!reference-regions/Pfam32.0/
+!reference-regions/Pfam32.0/.gitkeep
