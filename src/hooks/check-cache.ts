@@ -19,7 +19,10 @@ export const checkCache = async (context: HookContext) => {
     // Check if we already have this sequence in the database
     const existingRecord = await context.service._get(sequenceHash)
     console.log(`Cache hit for sequence hash: ${sequenceHash}`)
-
+    // prefer user supplied header
+    if (context.data.header) {
+      existingRecord.header = context.data.header
+    }
     // Skip the rest of the hooks and the service method by setting context.result
     context.result = existingRecord
     return context

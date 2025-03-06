@@ -23,9 +23,7 @@ export const generateSequenceHash = (
   model = 'pfam',
   version = '1568346315',
 ): string => {
-  return createHash('sha256')
-    .update(sequence + model + version)
-    .digest('hex')
+  return createHash('md5').update(sequence).update(model).update(version).digest('hex')
 }
 
 // Domain map schema
@@ -42,7 +40,10 @@ export type DomainEntry = Static<typeof domainEntrySchema>
 export const pfamSchema = Type.Object(
   {
     _id: Type.String(),
+    header: Type.Optional(Type.String()),
     sequence: Type.String(),
+    model: Type.Optional(Type.String()),
+    version: Type.Optional(Type.String()),
     createdAt: Type.Number(),
     predictions: Type.Optional(
       Type.Object({
@@ -59,7 +60,7 @@ export type Pfam = Static<typeof pfamSchema>
 export const pfamValidator = getValidator(pfamSchema, dataValidator)
 // This resolver handles data being returned from the database.
 // This is where you would fetch associated data or transform results.
-export const pfamResolver = resolve<Pfam, HookContext<PfamService>>({
+export const pfamResultResolver = resolve<Pfam, HookContext<PfamService>>({
   domainMap: virtual((pfam, context) => {
     // Ensure domain data is loaded
     ensureDomainDataLoaded()
@@ -99,15 +100,23 @@ export type PfamData = Static<typeof pfamDataSchema>
 export const pfamDataValidator = getValidator(pfamDataSchema, dataValidator)
 // This resolver handles incoming data for create operations.
 // Can add/replace default or calculated values before saving to the database.
-export const pfamDataResolver = resolve<Pfam, HookContext<PfamService>>({
-  _id: async (value, pfam, context) => {
+export const pfamDefaultResolver = resolve<Pfam, HookContext<PfamService>>({
+  model: async (value) => {
+    return value || 'pfam'
+  },
+  version: async (value) => {
+    return value || '1568346315'
+  },
+  createdAt: async () => Date.now(),
+})
+export const pfamPredictionsResolver = resolve<Pfam, HookContext<PfamService>>({
+  _id: async (value, pfam) => {
     // Generate a hash from the sequence to use as the _id
     if (pfam.sequence) {
-      return generateSequenceHash(pfam.sequence)
+      return generateSequenceHash(pfam.sequence, pfam.model, pfam.version)
     }
     return value
   },
-  createdAt: async () => Date.now(),
   predictions: async (value, pfam, context) => {
     // Return existing value if it's already set or if there's no sequence
     if (value !== undefined || !pfam.sequence || context.result) {
@@ -117,9 +126,12 @@ export const pfamDataResolver = resolve<Pfam, HookContext<PfamService>>({
     try {
       // Call the TensorFlow Serving API
       console.log('Calling TensorFlow Serving API')
-      const response = await axios.post(`${context.app.get('servingUrl')}/pfam:predict`, {
-        instances: [pfam.sequence],
-      })
+      const response = await axios.post(
+        `${context.app.get('servingUrl')}/${pfam.model}${pfam.version ? '/versions/' + pfam.version : ''}:predict`,
+        {
+          instances: [pfam.sequence],
+        },
+      )
 
       // Extract and return the predictions from the response
       return response.data.predictions[0]

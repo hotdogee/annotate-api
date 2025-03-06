@@ -6,9 +6,10 @@ import {
   pfamDataValidator,
   pfamPatchValidator,
   pfamQueryValidator,
-  pfamResolver,
+  pfamResultResolver,
   pfamExternalResolver,
-  pfamDataResolver,
+  pfamDefaultResolver,
+  pfamPredictionsResolver,
   pfamPatchResolver,
   pfamQueryResolver,
 } from './pfam.schema'
@@ -35,7 +36,7 @@ export const pfam = (app: Application) => {
     around: {
       all: [
         schemaHooks.resolveExternal(pfamExternalResolver),
-        schemaHooks.resolveResult(pfamResolver),
+        schemaHooks.resolveResult(pfamResultResolver),
       ],
     },
     before: {
@@ -48,7 +49,7 @@ export const pfam = (app: Application) => {
       create: [
         schemaHooks.validateData(pfamDataValidator),
         checkCache,
-        schemaHooks.resolveData(pfamDataResolver),
+        schemaHooks.resolveData(pfamDefaultResolver, pfamPredictionsResolver),
       ],
       patch: [
         schemaHooks.validateData(pfamPatchValidator),

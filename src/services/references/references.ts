@@ -6,7 +6,7 @@ import {
   referencesDataValidator,
   referencesPatchValidator,
   referencesQueryValidator,
-  referencesResolver,
+  referencesResultResolver,
   referencesExternalResolver,
   referencesDataResolver,
   referencesPatchResolver,
@@ -61,7 +61,7 @@ export const references = (app: Application) => {
     around: {
       all: [
         schemaHooks.resolveExternal(referencesExternalResolver),
-        schemaHooks.resolveResult(referencesResolver),
+        schemaHooks.resolveResult(referencesResultResolver),
       ],
     },
     before: {

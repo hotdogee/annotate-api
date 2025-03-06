@@ -26,7 +26,7 @@ export const referencesSchema = Type.Object(
 )
 export type References = Static<typeof referencesSchema>
 export const referencesValidator = getValidator(referencesSchema, dataValidator)
-export const referencesResolver = resolve<References, HookContext<ReferencesService>>({})
+export const referencesResultResolver = resolve<References, HookContext<ReferencesService>>({})
 
 export const referencesExternalResolver = resolve<References, HookContext<ReferencesService>>({})
 
