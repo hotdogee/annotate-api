@@ -64,6 +64,40 @@ npm run compile
 npm run start
 ```
 
+## CORS Configuration
+
+The API supports Cross-Origin Resource Sharing (CORS), allowing the API to be accessed from web applications hosted on different domains. CORS settings are configured in the `config/default.json` file:
+
+```json
+"origins": ["http://localhost:9000"]
+```
+
+### Configuration Options
+
+1. **Single Origin**: The default configuration allows access only from `http://localhost:9000`
+
+2. **Multiple Origins**: To allow multiple specific origins:
+
+   ```json
+   "origins": ["http://localhost:9000", "https://example.com", "https://app.yourdomain.com"]
+   ```
+
+3. **Allow All Origins** (not recommended for production):
+
+   ```json
+   "origins": "*"
+   ```
+
+4. **Environment-Specific Configuration**:
+   - Create separate configuration files (e.g., `config/production.json`, `config/development.json`)
+   - Configure different CORS settings for each environment
+
+### Security Best Practices
+
+- Always restrict origins to specific trusted domains in production
+- Never use wildcard (`*`) origins in production environments
+- Consider using HTTPS-only origins for production
+
 ## Reference Data Setup
 
 1. Create the reference directory structure (if not already present):
