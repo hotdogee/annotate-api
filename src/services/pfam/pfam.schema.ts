@@ -93,7 +93,7 @@ export const pfamResultResolver = resolve<Pfam, HookContext<PfamService>>({
 export const pfamExternalResolver = resolve<Pfam, HookContext<PfamService>>({})
 
 // Schema for creating new entries
-export const pfamDataSchema = Type.Pick(pfamSchema, ['sequence'], {
+export const pfamDataSchema = Type.Pick(pfamSchema, ['header', 'sequence', 'model', 'version'], {
   $id: 'PfamData',
 })
 export type PfamData = Static<typeof pfamDataSchema>
