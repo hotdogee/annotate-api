@@ -1,9 +1,9 @@
 {
   "name": "annotate-api",
-  "description": "Backend API for ANNotate",
-  "version": "0.0.0",
+  "description": "test",
+  "version": "2.0.0",
   "homepage": "",
-  "main": "src",
+  "private": true,
   "keywords": [
     "feathers"
   ],
@@ -13,57 +13,73 @@
   },
   "contributors": [],
   "bugs": {},
+  "engines": {
+    "node": ">= 22.14.0"
+  },
+  "feathers": {
+    "language": "ts",
+    "packager": "npm",
+    "database": "mongodb",
+    "framework": "koa",
+    "transports": [
+      "rest",
+      "websockets"
+    ],
+    "schema": "typebox"
+  },
   "directories": {
     "lib": "src",
-    "test": "test/",
-    "config": "config/"
+    "test": "test"
   },
-  "engines": {
-    "node": "^11.0.0",
-    "npm": ">= 3.0.0"
-  },
+  "files": [
+    "lib/client.js",
+    "lib/**/*.d.ts",
+    "lib/**/*.shared.js"
+  ],
+  "main": "lib/client",
   "scripts": {
-    "test": "npm run eslint && NODE_ENV= npm run mocha",
-    "eslint": "eslint src/. test/. --config .eslintrc.js",
-    "prettier-eslint": "prettier-eslint \"src/**/*.js\" \"test/**/*.js\" --write --eslint-config-path .eslintrc.js --config .prettierrc.js",
-    "dev": "nodemon src/",
-    "debug": "cross-env DEBUG=pfam* nodemon src/",
-    "start": "cross-env NODE_ENV=production node src/",
-    "mocha": "mocha test/ --recursive --exit"
+    "dev": "nodemon -x ts-node src/index.ts",
+    "compile": "shx rm -rf lib/ && tsc && shx cp -r src/assets lib/",
+    "start": "cross-env NODE_ENV=production node lib/",
+    "prettier": "npx prettier \"**/*.ts\" --write",
+    "mocha": "cross-env NODE_ENV=test mocha test/ --require ts-node/register --recursive --extension .ts --exit",
+    "test": "npm run mocha",
+    "bundle:client": "npm run compile && npm pack --pack-destination ./public",
+    "db:load-references": "node --max-old-space-size=32768 --import=tsx util/references/load-references.ts",
+    "db:index-references": "node --max-old-space-size=32768 --import=tsx util/references/index-references.ts"
   },
   "dependencies": {
-    "@feathersjs/client": "^4.3.5",
-    "@feathersjs/configuration": "^4.3.4",
-    "@feathersjs/errors": "^4.3.4",
-    "@feathersjs/express": "^4.3.5",
-    "@feathersjs/feathers": "^4.3.4",
-    "@feathersjs/socketio": "^4.3.5",
-    "axios": "^0.19.0",
-    "compression": "^1.7.4",
-    "cors": "^2.8.5",
-    "cross-env": "^6.0.3",
-    "dotenv": "^8.1.0",
-    "fast-csv": "^3.4.0",
-    "feathers-hooks-common": "^4.20.7",
-    "feathers-mongodb": "git+https://github.com/hotdogee/feathers-mongodb.git",
-    "helmet": "^3.21.1",
-    "mongodb": "^3.3.2",
-    "mongodb-core": "^3.2.7",
-    "serve-favicon": "^2.5.0",
-    "winston": "^3.2.1"
+    "@feathersjs/adapter-commons": "^5.0.33",
+    "@feathersjs/authentication": "^5.0.33",
+    "@feathersjs/authentication-client": "^5.0.33",
+    "@feathersjs/client": "^5.0.33",
+    "@feathersjs/configuration": "^5.0.33",
+    "@feathersjs/errors": "^5.0.33",
+    "@feathersjs/feathers": "^5.0.33",
+    "@feathersjs/koa": "^5.0.33",
+    "@feathersjs/mongodb": "^5.0.33",
+    "@feathersjs/schema": "^5.0.33",
+    "@feathersjs/socketio": "^5.0.33",
+    "@feathersjs/transport-commons": "^5.0.33",
+    "@feathersjs/typebox": "^5.0.33",
+    "config": "^3.3.12",
+    "fast-csv": "^5.0.2",
+    "mongodb": "^6.13.1",
+    "socket.io-client": "^4.8.1",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
-    "eslint": "^6.5.1",
-    "eslint-config-standard": "^14.1.0",
-    "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-node": "^10.0.0",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.1",
-    "mocha": "^6.2.1",
-    "nodemon": "^1.19.3",
-    "prettier-eslint": "^9.0.0",
-    "prettier-eslint-cli": "^5.0.0",
-    "request": "^2.88.0",
-    "request-promise": "^4.2.4"
+    "@feathersjs/cli": "^5.0.33",
+    "@feathersjs/rest-client": "^5.0.33",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.13.5",
+    "axios": "^1.7.9",
+    "cross-env": "^7.0.3",
+    "mocha": "^11.1.0",
+    "nodemon": "^3.1.9",
+    "prettier": "^3.5.2",
+    "shx": "^0.3.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
   }
 }
