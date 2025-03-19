@@ -21,7 +21,7 @@ import type { PfamService } from './pfam.class'
 export const generateSequenceHash = (
   sequence: string,
   model = 'pfam',
-  version = '1568346315',
+  version = '1742184680',
 ): string => {
   return createHash('md5').update(sequence).update(model).update(version).digest('hex')
 }
@@ -105,7 +105,7 @@ export const pfamDefaultResolver = resolve<Pfam, HookContext<PfamService>>({
     return value || 'pfam'
   },
   version: async (value) => {
-    return value || '1568346315'
+    return value || '1742184680'
   },
   createdAt: async () => Date.now(),
 })
