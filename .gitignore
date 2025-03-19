@@ -119,6 +119,7 @@ dist
 .sqlite
 
 lib/
+terraform/
 
 # reference-regions - ignore all files except specific .gitkeep files
 reference-regions/**/*
