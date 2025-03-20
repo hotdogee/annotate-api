@@ -367,3 +367,305 @@ curl -X POST -H "Content-Type: application/json" -d "{\"sequence\": \"MALWMRLLPL
 Invoke-WebRequest -Uri "http://localhost:3030/pfam" -Method POST -ContentType "application/json" -Body '{"sequence": "MALWMRLLPLLALLALWGPDPAAAFVNQHLCGSHLVEALYLVCGERGFFYTPKTRREAEDLQGSLQPLALEGSLQKRGIVEQCCTSICSLYQLENYCN"}'
 Invoke-WebRequest -Uri "http://localhost:8581/pfam" -Method POST -ContentType "application/json" -Body '{"sequence": "MALWMRLLPLLALLALWGPDPAAAFVNQHLCGSHLVEALYLVCGERGFFYTPKTRREAEDLQGSLQPLALEGSLQKRGIVEQCCTSICSLYQLENYCN"}'
 ```
+
+## Architecture Diagrams
+
+### System Context Diagram
+
+```mermaid
+---
+title: System Context Diagram - Annotate
+---
+flowchart TD
+    User["Researcher<br/><small>Prepares protein sequences in FASTA format for functional analysis</small>"]
+    UI["Annotate UI<br/><small>Interactive web application for prediction probability visualization</small>"]
+    API["Annotate API<br/><small>Efficient caching<br/>and reference data service</small>"]
+    Serving["Annotate Serving<br/><small>GPU accelerated<br/>protein function prediction</small>"]
+    Script["Batch Script<br/><small>Custom script for batch prediction</small>"]
+    EBI["European Bioinformatics Institute<br/><small>Pfam reference data</small>"]
+
+    User -- "Single protein" --> UI
+    User -- "Multiple proteins" --> Script
+    Script -- "Calls HTTP or WebSockets API" --> API
+    UI -- "Calls WebSockets API" --> API
+    EBI -- "Load and index reference data" --> API
+    API -- "Secure private network" --> Serving
+
+    classDef system fill:#1168bd,stroke:#0b4884,color:white
+    classDef person fill:#08427b,stroke:#052e56,color:white
+    classDef external fill:#999999,stroke:#666666,color:white
+
+    class API system
+    class UI system
+    class Serving system
+    class User person
+    class Script external
+    class EBI external
+```
+
+### Container Diagram
+
+```mermaid
+---
+title: Container Diagram - Annotate API System
+---
+flowchart TD
+    User["Researcher<br/><small>Prepares protein sequences in FASTA format for functional analysis</small>"]
+    Script["Batch Script<br/><small>Custom script for batch prediction</small>"]
+    UI["Annotate UI<br/><small>Interactive web application for prediction probability visualization</small>"]
+
+    subgraph APISystem["Annotate API System"]
+        API["NodeJS API Server<br/><small>RESTful HTTP/WebSocket API<br/>Coordinates communicate between user requests, database, domain mapping and prediction services</small>"]
+        MongoDB["MongoDB Database<br/><small>Stores cached predictions and<br/>Pfam reference data</small>"]
+        DomainMapper["Domain Mapping Engine<br/><small>Translates numerical class IDs<br/>to human-readable annotations</small>"]
+    end
+
+    subgraph ServingSystem["Annotate Serving System"]
+        Serving["Annotate Serving<br/><small>HTTP/gRPC API with<br/>TensorFlow Serving</small>"]
+        PfamModel["Pfam Deep Learning Model<br/><small>GPU accelerated<br/>protein function prediction</small>"]
+    end
+
+    User -- "Single protein" --> UI
+    User -- "Multiple proteins" --> Script
+    Script -- "Calls HTTP or WebSockets API" --> APISystem
+    UI -- "Calls WebSockets API" --> APISystem
+
+    API -- "Stores/retrieves<br/>predictions" --> MongoDB
+    API -- "Stores/retrieves<br/>reference data" --> MongoDB
+    API -- "Enriches predictions with<br/>domain information" --> DomainMapper
+    APISystem -- "Requests prediction" --> ServingSystem
+    Serving -- "Runs inference" --> PfamModel
+
+    classDef system fill:#1168bd,stroke:#0b4884,color:white
+    classDef person fill:#08427b,stroke:#052e56,color:white
+    classDef container fill:#23a2d9,stroke:#1a7aa0,color:white
+    classDef database fill:#ef8d22,stroke:#cc7619,color:white
+
+    class User person
+    class UI system
+    class Script system
+    class API,DomainMapper,Serving container
+    class MongoDB database
+    class PfamModel container
+```
+
+### Component Diagram
+
+```mermaid
+---
+title: Component Diagram - Annotate API
+---
+flowchart TD
+    Client["Client<br/><small>Web browser or API client</small>"]
+
+    subgraph API["NodeJS API Server"]
+        Server["FeathersJS Application<br/><small>Core server framework handling<br/>HTTP/WebSocket requests</small>"]
+        PfamService["Pfam Service<br/><small>Handles protein sequence<br/>submission and prediction</small>"]
+        RefService["References Service<br/><small>Provides access to the Pfam<br/>domain reference database</small>"]
+        Mapper["Domain Mapper<br/><small>Translates class IDs to<br/>human-readable information</small>"]
+        Cache["Caching Layer<br/><small>Caches predictions using<br/>sequence hashing</small>"]
+        Validator["Sequence Validator<br/><small>Validates protein sequence<br/>format</small>"]
+    end
+
+    MongoDB[(MongoDB)]
+    TFServing["Annotate Serving"]
+
+    Client -- "HTTP/WebSocket<br/>requests" --> API
+    Server -- "Routes requests" --> PfamService
+    Server -- "Routes requests" --> RefService
+
+    PfamService -- "Validates<br/>sequences" --> Validator
+    PfamService -- "Stores/retrieves<br/>predictions" --> Cache
+    PfamService -- "Requests prediction<br/>[if cache miss]" --> TFServing
+    PfamService -- "Enriches results" --> Mapper
+
+    RefService -- "Queries reference<br/>data" --> MongoDB
+    RefService -- "Enriches results" --> Mapper
+
+    Cache -- "Stores/retrieves<br/>data" --> MongoDB
+
+    classDef component fill:#85bbf0,stroke:#5d82a8,color:black
+    classDef external fill:#aaaaaa,stroke:#999999,color:black
+    classDef database fill:#f5bd7e,stroke:#dcaa71,color:black
+
+    class Server,PfamService,RefService,Mapper,Cache,Validator component
+    class Client,TFServing external
+    class MongoDB database
+```
+
+### Data Flow Diagram
+
+```mermaid
+---
+title: Data Flow Diagram - Protein Function Prediction
+---
+sequenceDiagram
+    participant Client
+    participant API as FeathersJS API Server
+    participant Cache as Caching Layer
+    participant MongoDB
+    participant TF as TensorFlow Serving
+    participant Mapper as Domain Mapper
+
+    Client->>API: Submit protein sequence
+    activate API
+    API->>API: Validate sequence format
+    API->>API: Generate SHA-256 hash
+    API->>Cache: Check for existing prediction
+    activate Cache
+    Cache->>MongoDB: Query by hash
+        activate MongoDB
+
+    alt Cache Hit
+        MongoDB-->>Cache: Return result (if exists)
+        deactivate MongoDB
+        Cache-->>API: Cache hit/miss result
+        deactivate Cache
+    else Cache Miss
+        API->>TF: Send sequence for prediction
+        activate TF
+        TF-->>API: Return prediction results
+        deactivate TF
+        API->>MongoDB: Store prediction
+        activate MongoDB
+        MongoDB-->>API: Confirm storage
+        deactivate MongoDB
+    end
+    API->>Mapper: Enrich with domain info
+    activate Mapper
+    Mapper-->>API: Return enriched results
+    deactivate Mapper
+
+    API-->>Client: Return prediction results
+    deactivate API
+```
+
+### Model Component Diagram
+
+```mermaid
+---
+title: Component Diagram for ANNotate Model Architecture
+---
+flowchart TD
+    %% Main components
+    input["Protein Sequence<br/>Input Layer"] --> embed["Embedding<br/>32-dim vectors"]
+    embed --> dropout1["Dropout 20%"]
+
+    %% Convolutional Bank subgraph - using a grid layout with invisible connections
+    subgraph convbank["Convolutional Bank"]
+        %% First row
+        conv1["Conv1D<br/>k=1, 32 Filters"]
+        conv3["Conv1D<br/>k=3, 32 Filters"]
+        conv5["Conv1D<br/>k=5, 32 Filters"]
+        conv7["Conv1D<br/>k=7, 32 Filters"]
+        conv9["Conv1D<br/>k=9, 32 Filters"]
+
+        %% Second row
+        conv11["Conv1D<br/>k=11, 32 Filters"]
+        conv13["Conv1D<br/>k=13, 32 Filters"]
+        conv15["Conv1D<br/>k=15, 32 Filters"]
+        conv17["Conv1D<br/>k=17, 32 Filters"]
+        conv19["Conv1D<br/>k=19, 32 Filters"]
+
+        %% Third row
+        conv21["Conv1D<br/>k=21, 32 Filters"]
+        conv23["Conv1D<br/>k=23, 32 Filters"]
+        conv25["Conv1D<br/>k=25, 32 Filters"]
+        conv27["Conv1D<br/>k=27, 32 Filters"]
+        conv29["Conv1D<br/>k=29, 32 Filters"]
+
+        %% Vertical connections for grid layout
+        conv1 --- conv11 --- conv21
+        conv3 --- conv13 --- conv23
+        conv5 --- conv15 --- conv25
+        conv7 --- conv17 --- conv27
+        conv9 --- conv19 --- conv29
+    end
+
+    dropout1 --> convbank
+
+    %% Post conv processing
+    convbank --> concat["Concatenate"]
+    concat --> batchnorm1["Batch Normalization"]
+    batchnorm1 --> relu["ReLU Activation"]
+    relu --> dropout2["Dropout 20%"]
+    dropout2 --> res["Residual Connection"]
+    %% Add residual connection from dropout1 to concat (showing the concatenation of embedded inputs with conv outputs)
+    dropout1 --> res
+
+    %% Highway Network subgraph
+    subgraph highway["Highway Network"]
+        hw1["Highway Layer 1<br/>512 units"]
+        hw2["Highway Layer 2<br/>512 units"]
+        hw3["Highway Layer 3<br/>512 units"]
+
+        hw1 --> hw2 --> hw3
+    end
+
+    res --> highway
+
+    %% Bidirectional RNN subgraph
+    subgraph birnn["Bidirectional RNN"]
+        gru1["BiGRU Layer 1<br/>512+512 units"]
+        gru2["BiGRU Layer 2<br/>512+512 units"]
+        gru3["BiGRU Layer 3<br/>512+512 units"]
+        gru4["BiGRU Layer 4<br/>512+512 units"]
+
+        gru1 --> gru2 --> gru3 --> gru4
+    end
+
+    highway --> birnn
+    birnn --> batchnorm2["Batch Normalization"]
+    batchnorm2 --> dense["Dense<br/>16,714 Pfam domain classes"]
+    dense --> output["Output Layer<br/>Pfam domain probabilities<br/>for each amino acid<br/>in the sequence"]
+
+    %% Node styling
+    %% style input fill:#e8f4f8,stroke:#5b9bd5,color:black
+    style embed fill:#e8f4f8,stroke:#5b9bd5,color:black
+    style dropout1 fill:#e8f4f8,stroke:#5b9bd5,color:black
+    style concat fill:#e8f4f8,stroke:#5b9bd5,color:black
+    style batchnorm1 fill:#e8f4f8,stroke:#5b9bd5,color:black
+    style relu fill:#e8f4f8,stroke:#5b9bd5,color:black
+    style dropout2 fill:#e8f4f8,stroke:#5b9bd5,color:black
+    style res fill:#e8f4f8,stroke:#5b9bd5,color:black
+    style batchnorm2 fill:#e8f4f8,stroke:#5b9bd5,color:black
+    style dense fill:#e8f4f8,stroke:#5b9bd5,color:black
+
+    %% Style for all conv layers
+    style conv1 fill:#e8f4f8,stroke:#5b9bd5,color:black
+    style conv3 fill:#e8f4f8,stroke:#5b9bd5,color:black
+    style conv5 fill:#e8f4f8,stroke:#5b9bd5,color:black
+    style conv7 fill:#e8f4f8,stroke:#5b9bd5,color:black
+    style conv9 fill:#e8f4f8,stroke:#5b9bd5,color:black
+    style conv11 fill:#e8f4f8,stroke:#5b9bd5,color:black
+    style conv13 fill:#e8f4f8,stroke:#5b9bd5,color:black
+    style conv15 fill:#e8f4f8,stroke:#5b9bd5,color:black
+    style conv17 fill:#e8f4f8,stroke:#5b9bd5,color:black
+    style conv19 fill:#e8f4f8,stroke:#5b9bd5,color:black
+    style conv21 fill:#e8f4f8,stroke:#5b9bd5,color:black
+    style conv23 fill:#e8f4f8,stroke:#5b9bd5,color:black
+    style conv25 fill:#e8f4f8,stroke:#5b9bd5,color:black
+    style conv27 fill:#e8f4f8,stroke:#5b9bd5,color:black
+    style conv29 fill:#e8f4f8,stroke:#5b9bd5,color:black
+
+    style hw1 fill:#e8f4f8,stroke:#5b9bd5,color:black
+    style hw2 fill:#e8f4f8,stroke:#5b9bd5,color:black
+    style hw3 fill:#e8f4f8,stroke:#5b9bd5,color:black
+
+    style gru1 fill:#e8f4f8,stroke:#5b9bd5,color:black
+    style gru2 fill:#e8f4f8,stroke:#5b9bd5,color:black
+    style gru3 fill:#e8f4f8,stroke:#5b9bd5,color:black
+    style gru4 fill:#e8f4f8,stroke:#5b9bd5,color:black
+
+    %% Subgraph styling
+    style convbank fill:#f8f4e8,stroke:#ff9900,color:black
+    style highway fill:#f8f4e8,stroke:#ff9900,color:black
+    style birnn fill:#f8f4e8,stroke:#ff9900,color:black
+
+    %% Connection styling
+    linkStyle default stroke:#5b9bd5,stroke-width:2px
+
+    %% Make all connections inside convolutional bank invisible
+    %% The 2-11 links are the grid connections in the convbank
+    linkStyle 2,3,4,5,6,7,8,9,10,11 stroke-opacity:0.0
+```
