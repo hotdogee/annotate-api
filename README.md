@@ -356,6 +356,50 @@ cd annotate-api
 npm i
 ```
 
+### Setup https reverse proxy with nginx and let's encrypt
+
+- https://certbot.eff.org/instructions?ws=nginx&os=pip
+
+```bash
+sudo apt install -y nginx
+systemctl status nginx
+sudo apt install -y python3 python3-venv libaugeas0
+sudo python3 -m venv /opt/certbot/
+sudo /opt/certbot/bin/pip install --upgrade pip setuptools
+sudo /opt/certbot/bin/pip install certbot certbot-nginx
+sudo ln -s /opt/certbot/bin/certbot /usr/bin/certbot
+sudo certbot --nginx
+sudo vi /etc/nginx/sites-available/api-ann.hanl.in.conf
+```
+
+```
+server {
+    listen 8582 ssl;
+    listen [::]:8582 ssl ipv6only=on;
+    server_name api-ann.hanl.in;
+    ssl_certificate /etc/letsencrypt/live/api-ann.hanl.in/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/api-ann.hanl.in/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    location / {
+        proxy_pass http://127.0.0.1:8581;  # The backend service address
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+```bash
+sudo ln -s /etc/nginx/sites-available/api-ann.hanl.in.conf /etc/nginx/sites-enabled/api-ann.hanl.in.conf
+sudo nginx -t
+sudo systemctl reload nginx
+echo "0 0,12 * * * root /opt/certbot/bin/python -c 'import random; import time; time.sleep(random.random() * 3600)' && sudo certbot renew -q && sudo systemctl reload nginx" | sudo tee -a /etc/crontab > /dev/null
+echo "0 0 3 * * root /opt/certbot/bin/pip install --upgrade certbot certbot-nginx" | sudo tee -a /etc/crontab > /dev/null
+```
+
 ## Test
 
 ```bash
@@ -368,7 +412,7 @@ Invoke-WebRequest -Uri "http://localhost:3030/pfam" -Method POST -ContentType "a
 Invoke-WebRequest -Uri "http://localhost:8581/pfam" -Method POST -ContentType "application/json" -Body '{"sequence": "MALWMRLLPLLALLALWGPDPAAAFVNQHLCGSHLVEALYLVCGERGFFYTPKTRREAEDLQGSLQPLALEGSLQKRGIVEQCCTSICSLYQLENYCN"}'
 ```
 
-## Architecture Diagrams
+# Architecture Diagrams
 
 ### System Context Diagram
 
