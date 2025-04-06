@@ -403,6 +403,36 @@ echo "0 0,12 * * * root /opt/certbot/bin/python -c 'import random; import time; 
 echo "0 0 3 * * root /opt/certbot/bin/pip install --upgrade certbot certbot-nginx" | sudo tee -a /etc/crontab > /dev/null
 ```
 
+### Auto restart on crash and start on boot
+
+```bash
+sudo vi /etc/systemd/system/annotate-api.service
+```
+
+```conf
+[Unit]
+Description=ANNoatate API Server
+After=network.target mongod.target
+
+[Service]
+ExecStart=/usr/bin/node /home/hanlin/annotate-api/lib/
+WorkingDirectory=/home/hanlin/annotate-api
+Restart=always
+RestartSec=10
+User=hanlin
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl status annotate-api.service
+sudo systemctl enable annotate-api.service
+sudo systemctl start annotate-api.service
+```
+
 ## Test
 
 ```bash
