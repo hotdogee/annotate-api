@@ -374,8 +374,8 @@ sudo vi /etc/nginx/sites-available/api-ann.hanl.in.conf
 
 ```
 server {
-    listen 8582 ssl;
-    listen [::]:8582 ssl ipv6only=on;
+    listen 8582 ssl http2;
+    listen [::]:8582 ssl http2 ipv6only=on;
     server_name api-ann.hanl.in;
     ssl_certificate /etc/letsencrypt/live/api-ann.hanl.in/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/api-ann.hanl.in/privkey.pem;
@@ -388,6 +388,9 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
     }
 }
 ```
