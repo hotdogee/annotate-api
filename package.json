@@ -7,12 +7,7 @@
   "keywords": [
     "feathers"
   ],
-  "author": {
-    "name": "Han Lin",
-    "email": "hotdogee@gmail.com"
-  },
-  "contributors": [],
-  "bugs": {},
+  "author": "Han Lin <hotdogee@gmail.com> (https://github.com/hotdogee)",
   "engines": {
     "node": ">= 22.14.0"
   },
